@@ -1,0 +1,16 @@
+:root {
+  --box-dimension: 575px;
+}
+
+#container {
+  border: solid grey 2px;
+  height: var(--box-dimension);
+  width: var(--box-dimension);
+  display: grid;
+  grid-template-columns: 1px;
+  grid-template-rows: 1px;
+}
+
+
+
+
