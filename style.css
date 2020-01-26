@@ -2,15 +2,24 @@
   --box-dimension: 575px;
 }
 
+#frame {
+  position: relative;
+  height: calc(var(--box-dimension) + 5px);
+  width: calc(var(--box-dimension) + 53px);
+}
+
 #container {
   border: solid grey 2px;
   height: var(--box-dimension);
   width: var(--box-dimension);
-  display: grid;
-  grid-template-columns: 1px;
-  grid-template-rows: 1px;
+  display: inline-grid;
+  grid-template-columns: 10px;
+  grid-template-rows: 10px;
 }
 
-
-
-
+#reset {
+  position: absolute;
+  right: 0px;
+  height: calc(var(--box-dimension) + 4px);
+  width: 48px;
+}
