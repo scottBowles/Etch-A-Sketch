@@ -30,7 +30,23 @@ function putTilesInGrid(arrayOfTiles) {
   }
 }
 
-function addTileMouseoverListeners(arrayOfTiles) {
+function addTileRandomRGBListeners(arrayOfTiles) {
+  let rgb = '';
+  arrayOfTiles.forEach(element => {
+    element.addEventListener('mouseover', () => {
+      rgb = 'rgb(' + Math.floor(Math.random()*255) + ', ' + Math.floor(Math.random()*255) + ', ' + Math.floor(Math.random()*255);
+      element.style.backgroundColor = rgb;
+    })
+  });
+}
+
+function fadeToBlackListeners(arrayOfTiles) {
+  let objectOfTiles = {};
+  objectOfTiles[element] = 10;
+
+}
+
+function addTileToGreyListeners(arrayOfTiles) {
   arrayOfTiles.forEach(element => {
     element.addEventListener('mouseover', () => {
       element.style.backgroundColor = 'grey';
@@ -38,16 +54,16 @@ function addTileMouseoverListeners(arrayOfTiles) {
   });
 }
 
-function constructPalette(squareDimension){
+function constructPalette(squareDimension, colorFunction){
   createGrid(squareDimension);
   let arrayOfTiles = createTileDivs(squareDimension);
   putTilesInGrid(arrayOfTiles);
-  addTileMouseoverListeners(arrayOfTiles);
+  colorFunction(arrayOfTiles);
   return arrayOfTiles;
 }
 
 let squareDimension = 16;
-let arrayOfTiles = constructPalette(squareDimension);
+let arrayOfTiles = constructPalette(squareDimension, addTileRandomRGBListeners);
 
 
 
@@ -59,7 +75,7 @@ function resetClick() {
   clearTiles();  
   let newDimension = +prompt("Reset? Enter new resolution up to 64. For instance, '64' will result in a 64x64 square palette.");
   if (Number.isInteger(newDimension) && (0 < newDimension < 65)) {
-    arrayOfTiles = constructPalette(newDimension);
+    arrayOfTiles = constructPalette(newDimension, addTileRandomRGBListeners);
   }else{
     resetClick();
   }
