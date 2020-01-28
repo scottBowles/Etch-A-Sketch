@@ -1,14 +1,8 @@
-/* These first three lines are here in case we need to change the 
-container size is the future */
-const root = document.querySelector(':root');
-const boxDimensionPixels = 575;
-root.style.setProperty('--box-dimension', boxDimensionPixels + 'px');
 
-
-
+//    PALETTE CONSTRUCTION FUNCTIONS
 
 function createGrid(squareDimension) {
-  const container = document.querySelector('#container');
+  const container = document.querySelector('#paletteContainer');
   const gridTemplateText = "repeat(" + squareDimension + ", 1fr)";
   container.style.gridTemplateColumns = gridTemplateText;
   container.style.gridTemplateRows = gridTemplateText;
@@ -18,19 +12,21 @@ function createTileDivs(squareDimension) {
   let numberOfTiles = squareDimension**2;
   let arrayOfTiles = [];
   for (i=0; i<numberOfTiles; i++) {
-    let tileDiv = document.createElement('div');
+    let tileDiv = document.createElement(`div${i}`);
     arrayOfTiles[i] = tileDiv;
   }
-  return arrayOfTiles;
+  return arrayOfTiles;  
 }
 
 function putTilesInGrid(arrayOfTiles) {
   for (const i in arrayOfTiles) {
-    container.appendChild(arrayOfTiles[i]);
+    paletteContainer.appendChild(arrayOfTiles[i]);
   }
 }
 
-function addTileRandomRGBListeners(arrayOfTiles) {
+//    TILE MOUSEOVER OPTIONS
+
+function addRandomRGBListeners(arrayOfTiles) {
   let rgb = '';
   arrayOfTiles.forEach(element => {
     element.addEventListener('mouseover', () => {
@@ -40,50 +36,84 @@ function addTileRandomRGBListeners(arrayOfTiles) {
   });
 }
 
-function fadeToBlackListeners(arrayOfTiles) {
+function addFadeToBlackListeners(arrayOfTiles) {
   let objectOfTiles = {};
-  objectOfTiles[element] = 10;
-
+  for (i in arrayOfTiles) {
+    objectOfTiles[i] = 10;
+  }
+  for (i in arrayOfTiles) {
+    let arrayElement = arrayOfTiles[i]
+    arrayElement.addEventListener('mouseover', () => {
+      index = arrayOfTiles.indexOf(arrayElement)
+      objectOfTiles[index] -= 1;
+      let rgbValue = objectOfTiles[index] * 255 / 10;
+      arrayElement.style.backgroundColor = 'rgb(' + rgbValue + ', ' + rgbValue + ', ' + rgbValue + ')';
+    });
+  }
+  return objectOfTiles;
 }
 
 function addTileToGreyListeners(arrayOfTiles) {
   arrayOfTiles.forEach(element => {
     element.addEventListener('mouseover', () => {
-      element.style.backgroundColor = 'grey';
+      element.style.backgroundColor = '#787878';
     })
   });
 }
 
-function constructPalette(squareDimension, colorFunction){
+//    PUTTING IT TOGETHER
+
+function constructPalette(squareDimension=16, tileMouseoverOption=addTileToGreyListeners){
   createGrid(squareDimension);
   let arrayOfTiles = createTileDivs(squareDimension);
   putTilesInGrid(arrayOfTiles);
-  colorFunction(arrayOfTiles);
+  let objectOfTiles = tileMouseoverOption(arrayOfTiles);
   return arrayOfTiles;
 }
 
-let squareDimension = 16;
-let arrayOfTiles = constructPalette(squareDimension, addTileRandomRGBListeners);
+let arrayOfTiles = constructPalette();
+
+//    CHANGE MOUSEOVER OPTION
+
+let mouseoverSelection = addTileToGreyListeners;
+
+function getCurrentTiles() {
+  const container = document.querySelector('#paletteContainer');
+  let arrayOfTiles = [...container.children];
+  return arrayOfTiles;
+}
+
+const buttonRandomRGB = document.querySelector('#randomRGB');
+buttonRandomRGB.addEventListener('click', addRandomRGBListeners(getCurrentTiles()));
+
+const buttonFadeToBlack = document.querySelector('#fadeToBlack');
+buttonFadeToBlack.addEventListener('click', addFadeToBlackListeners(getCurrentTiles()));
 
 
+
+//    RESET BUTTON
 
 const resetButton = document.querySelector('#reset');
 
 resetButton.addEventListener('click', resetClick);
   
 function resetClick() {
-  clearTiles();  
-  let newDimension = +prompt("Reset? Enter new resolution up to 64. For instance, '64' will result in a 64x64 square palette.");
-  if (Number.isInteger(newDimension) && (0 < newDimension < 65)) {
-    arrayOfTiles = constructPalette(newDimension, addTileRandomRGBListeners);
+  let newDimension = prompt("Reset? Enter new resolution up to 64. For instance, '64' will result in a 64x64 square palette.");
+  if (newDimension === null) {
+    return "Cancelled";
+  }else if (Number.isInteger(+newDimension) && (0 < +newDimension < 65)) {
+    clearTiles();
+    arrayOfTiles = constructPalette(+newDimension, addRandomRGBListeners);
+    return arrayOfTiles;
   }else{
     resetClick();
+    return "Invalid Input"
   }
-  return arrayOfTiles;
 }
 
 function clearTiles(){
-  for (i in arrayOfTiles) {
-    container.removeChild(arrayOfTiles[i]);
+  let container = document.querySelector('#paletteContainer');
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
   }
 }

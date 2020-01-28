@@ -5,10 +5,10 @@
 #frame {
   position: relative;
   height: calc(var(--box-dimension) + 5px);
-  width: calc(var(--box-dimension) + 53px);
+  width: calc(var(--box-dimension) * 1.16);
 }
 
-#container {
+#paletteContainer {
   border: solid grey 2px;
   height: var(--box-dimension);
   width: var(--box-dimension);
@@ -17,10 +17,48 @@
   grid-template-rows: 10px;
 }
 
+#buttonContainer {
+  position: absolute;
+  right: 0px;
+  top: 2px;
+  height: var(--box-dimension);
+  width: calc(var(--box-dimension) * .15);
+}
+
 #reset {
   position: absolute;
   right: 0px;
-  height: calc(var(--box-dimension) + 4px);
-  width: 48px;
+  bottom: 0px;
+  height: calc(var(--box-dimension) * .5);
+  width: calc(var(--box-dimension) * .15);
 }
 
+#colorSelect {
+  position: absolute;
+  top: calc(var(--box-dimension) * .025);;
+  height: calc(var(--box-dimension) / 5);
+  width: calc(var(--box-dimension) * .15);
+  text-align: center;
+}
+
+#fadeToBlack {
+  position: absolute;
+  right: 0px;
+  top: calc((var(--box-dimension) / 4) - 4px);
+  height: calc(var(--box-dimension) / 8);
+  width: calc(var(--box-dimension) * .15);
+}
+
+#randomRGB {
+  position: absolute;
+  right: 0px;
+  top: calc((var(--box-dimension) * 3/8) - 2px);
+  height: calc(var(--box-dimension) / 8);
+  width: calc(var(--box-dimension) * .15);
+}
+
+.button:hover {
+  background-color: #dddddd;
+  transform: scale(1.005);
+  border-color: #bbbbbb;
+}

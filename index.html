@@ -6,8 +6,18 @@
   </head>
   <body>
     <div id="frame">
-      <div id="container"></div>
-      <button id="reset">Reset</button>
+      <div id="paletteContainer"></div>
+      <div id="buttonContainer">
+        <button id="reset" class="button">Reset and Change Resolution</button>
+        <button id="fadeToBlack" class="button">Fade to Black</button>
+        <button id="randomRGB" class="button">Random Colors</button>
+        <form id="colorSelect">
+          <div id="colorContent">
+            Select a Color: <input type="color" value="#787878"><br><br>
+            <input type="submit" class="button">
+          </div>
+        </form>
+      </div>
     </div>
   </body>
 <script src="script.js"></script>
