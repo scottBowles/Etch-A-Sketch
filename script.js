@@ -1,4 +1,5 @@
 
+
 //    PALETTE CONSTRUCTION FUNCTIONS
 
 function createGrid(squareDimension) {
@@ -24,7 +25,18 @@ function putTilesInGrid(arrayOfTiles) {
   }
 }
 
+
 //    TILE MOUSEOVER OPTIONS
+
+const colorSelector = document.querySelector('#colorSelect');
+
+function addGivenColorListeners(arrayOfTiles, givenColor=colorSelector.value) {
+  arrayOfTiles.forEach(element => {
+    element.addEventListener('mouseover', () => {
+      element.style.backgroundColor = givenColor;
+    })
+  });
+}
 
 function addRandomRGBListeners(arrayOfTiles) {
   let rgb = '';
@@ -39,75 +51,93 @@ function addRandomRGBListeners(arrayOfTiles) {
 function addFadeToBlackListeners(arrayOfTiles) {
   let objectOfTiles = {};
   for (i in arrayOfTiles) {
-    objectOfTiles[i] = 10;
-  }
-  for (i in arrayOfTiles) {
     let arrayElement = arrayOfTiles[i]
+    let rgbArray = [];
+    if (arrayElement.style.backgroundColor == "") {
+      rgbArray = ["255", "255", "255"];
+    } else {
+      rgbArray = arrayElement.style.backgroundColor.slice(4, -1).split(", ");
+    }
+    objectOfTiles[i] = {
+      "countdown": 10,
+      "redValue": +rgbArray[0],
+      "greenValue": +rgbArray[1],
+      "blueValue": +rgbArray[2],
+    }
     arrayElement.addEventListener('mouseover', () => {
-      index = arrayOfTiles.indexOf(arrayElement)
-      objectOfTiles[index] -= 1;
-      let rgbValue = objectOfTiles[index] * 255 / 10;
-      arrayElement.style.backgroundColor = 'rgb(' + rgbValue + ', ' + rgbValue + ', ' + rgbValue + ')';
+      index = arrayOfTiles.indexOf(arrayElement);
+      objectOfTiles[index]["countdown"] -= 1;
+      let newRedValue = objectOfTiles[index]["redValue"] * objectOfTiles[index]["countdown"] / 10;
+      let newGreenValue = objectOfTiles[index]["greenValue"] * objectOfTiles[index]["countdown"] / 10;
+      let newBlueValue = objectOfTiles[index]["blueValue"] * objectOfTiles[index]["countdown"] / 10;
+      arrayElement.style.backgroundColor = 'rgb(' + Math.floor(newRedValue) + ', ' + Math.floor(newGreenValue) + ', ' + Math.floor(newBlueValue) + ')';
     });
   }
-  return objectOfTiles;
 }
 
-function addTileToGreyListeners(arrayOfTiles) {
-  arrayOfTiles.forEach(element => {
-    element.addEventListener('mouseover', () => {
-      element.style.backgroundColor = '#787878';
-    })
-  });
-}
 
 //    PUTTING IT TOGETHER
 
-function constructPalette(squareDimension=16, tileMouseoverOption=addTileToGreyListeners){
+function constructPalette(squareDimension, mouseoverSelection){
   createGrid(squareDimension);
   let arrayOfTiles = createTileDivs(squareDimension);
   putTilesInGrid(arrayOfTiles);
-  let objectOfTiles = tileMouseoverOption(arrayOfTiles);
+  mouseoverSelection(arrayOfTiles);
   return arrayOfTiles;
 }
 
-let arrayOfTiles = constructPalette();
+let palette = {
+  "squareDimension": 16,
+  "arrayOfTiles": [],
+  "mouseoverSelection": addGivenColorListeners,
+}
+
+arrayOfTiles = constructPalette(palette["squareDimension"], palette["mouseoverSelection"]);
+palette["arrayOfTiles"] = [...arrayOfTiles];
+
 
 //    CHANGE MOUSEOVER OPTION
 
-let mouseoverSelection = addTileToGreyListeners;
-
-function getCurrentTiles() {
-  const container = document.querySelector('#paletteContainer');
-  let arrayOfTiles = [...container.children];
-  return arrayOfTiles;
-}
-
 const buttonRandomRGB = document.querySelector('#randomRGB');
-buttonRandomRGB.addEventListener('click', addRandomRGBListeners(getCurrentTiles()));
+buttonRandomRGB.addEventListener('click', function() {
+  addRandomRGBListeners(palette["arrayOfTiles"]);
+  palette["mouseoverSelection"] = addRandomRGBListeners;
+});
 
 const buttonFadeToBlack = document.querySelector('#fadeToBlack');
-buttonFadeToBlack.addEventListener('click', addFadeToBlackListeners(getCurrentTiles()));
+buttonFadeToBlack.addEventListener('click', function() {
+  addFadeToBlackListeners(palette["arrayOfTiles"]);
+  palette["mouseoverSelection"] = addFadeToBlackListeners;
+});
 
+//const colorSelector = document.querySelector('#colorSelect'); (Assigned above)
+colorSelector.addEventListener('input', function() {
+  let chosenColor = colorSelector.value
+  addGivenColorListeners(palette["arrayOfTiles"], chosenColor);
+  palette["mouseoverSelection"] = addGivenColorListeners;
+});
 
 
 //    RESET BUTTON
-
+let input = "";
 const resetButton = document.querySelector('#reset');
+resetButton.addEventListener('click', () => resetClick());
 
-resetButton.addEventListener('click', resetClick);
-  
-function resetClick() {
-  let newDimension = prompt("Reset? Enter new resolution up to 64. For instance, '64' will result in a 64x64 square palette.");
-  if (newDimension === null) {
+function resetClick(promptVersion="firstPrompt") {
+  let newDimension = "";
+  if (promptVersion == "firstPrompt"){
+    newDimension = prompt("Reset? Enter new resolution up to 64. For instance, '64' will result in a 64x64 square palette.");
+  } else {
+    newDimension = prompt("Invalid input. Enter new resolution up to 64, or press 'Cancel' to stay on current palette. For instance, '64' will result in a 64x64 square palette.");
+  }
+  if (newDimension === null | newDimension == "") {
     return "Cancelled";
-  }else if (Number.isInteger(+newDimension) && (0 < +newDimension < 65)) {
+  }else if (Number.isInteger(+newDimension) && (0 < +newDimension) && (+newDimension < 65)) {
     clearTiles();
-    arrayOfTiles = constructPalette(+newDimension, addRandomRGBListeners);
-    return arrayOfTiles;
+    palette["arrayOfTiles"] = constructPalette(+newDimension, palette["mouseoverSelection"]);
+    return palette["arrayOfTiles"];
   }else{
-    resetClick();
-    return "Invalid Input"
+    resetClick("error");
   }
 }
 
